@@ -340,7 +340,6 @@ async def main():
         rtc_configuration={"iceServers": [{"urls": ["stun:stun.l.google.com:19302"]}]},
         media_stream_constraints={"video": True, "audio": True},
         source_video_track=mix_track,  # Set the mix track as the source video track
-        
     )
 
     self_process_track = None
@@ -365,10 +364,11 @@ async def main():
             server_state["webrtc_contexts"] = webrtc_contexts
         elif not self_is_playing and self_ctx in webrtc_contexts:
             webrtc_contexts.remove(self_ctx)
-            server_state["webrtc_contexts"] = we
+            server_state["webrtc_contexts"] = webrtc_contexts
+
         if self_ctx.state.playing:
-        # Audio streams are transferred in SFU manner
-        # TODO: Create MCU to mix audio streams
+            # Audio streams are transferred in SFU manner
+            # TODO: Create MCU to mix audio streams
             for ctx in webrtc_contexts:
                 if ctx == self_ctx or not ctx.state.playing:
                     continue
@@ -383,10 +383,7 @@ async def main():
                     desired_playing_state=ctx.state.playing,
                 )
 
-
 if __name__ == "__main__":
-    import os
-
     DEBUG = os.environ.get("DEBUG", "false").lower() not in ["false", "no", "0"]
 
     logging.basicConfig(
@@ -406,4 +403,4 @@ if __name__ == "__main__":
     fsevents_logger = logging.getLogger("fsevents")
     fsevents_logger.setLevel(logging.WARNING)
 
-    main()
+    asyncio.run(main())
