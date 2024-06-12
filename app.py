@@ -9,8 +9,8 @@ import mediapipe as mp
 import copy
 from sklearn.preprocessing import StandardScaler
 import pandas as pd
-import os
-os.environ["TF_FORCE_CPU"] = 'true'
+# import os
+# os.environ["TF_FORCE_CPU"] = 'true'
 
 mp_hands = mp.solutions.hands
 mp_drawing = mp.solutions.drawing_utils
