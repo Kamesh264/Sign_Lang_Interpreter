@@ -177,13 +177,7 @@ with open('trained_models/scaler.pkl', 'rb') as f:
 with open('trained_models/random_forest_model.pkl', 'rb') as f:
     loaded_model = pickle.load(f)
 
-try:
-    RTC_CONFIGURATION = RTCConfiguration(
-        {"iceServers": [{"urls": ["stun:stun.l.google.com:19302"]}]}
-    )
-except Exception as e:
-    logger.error(f"Error initializing RTCConfiguration: {e}")
-    st.error(f"Error initializing RTCConfiguration: {e}")
+
 
 st.set_page_config(page_title="ISLT", page_icon="🤖")
 
