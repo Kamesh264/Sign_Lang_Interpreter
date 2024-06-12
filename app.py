@@ -145,6 +145,7 @@ except ImportError:
     from typing_extensions import Literal  # type: ignore
 
 from streamlit_webrtc import RTCConfiguration, VideoProcessorBase, WebRtcMode, WebRtcStreamerContext, create_mix_track, create_process_track, webrtc_streamer
+from aiortc.contrib.media import RelayStreamTrack  # Import RelayStreamTrack
 
 import streamlit as st
 import av  # type: ignore
@@ -315,8 +316,6 @@ def mixer_callback(frames: List[av.VideoFrame]) -> av.VideoFrame:
 
     return new_frame
 
-
-
 def main():
     with server_state_lock["webrtc_contexts"]:
         if "webrtc_contexts" not in server_state:
@@ -335,15 +334,15 @@ def main():
         mode=WebRtcMode.SENDRECV,
         rtc_configuration={"iceServers": [{"urls": ["stun:stun.l.google.com:19302"]}]},
         media_stream_constraints={"video": True, "audio": True},
-        source_video_track=mix_track,
-        sendback_audio=False,
+        source_video_track=mix_track,  # Set the mix track as the source video track
+        
     )
 
     self_process_track = None
     if self_ctx.input_video_track:
         self_process_track = create_process_track(
             input_track=self_ctx.input_video_track,
-            processor_factory=VideoProcessorBase,
+            processor_factory=VideoProcessor,
         )
         mix_track.add_input_track(self_process_track)
 
@@ -361,9 +360,8 @@ def main():
             server_state["webrtc_contexts"] = webrtc_contexts
         elif not self_is_playing and self_ctx in webrtc_contexts:
             webrtc_contexts.remove(self_ctx)
-            server_state["webrtc_contexts"] = webrtc_contexts
-
-    if self_ctx.state.playing:
+            server_state["webrtc_contexts"] = we
+        if self_ctx.state.playing:
         # Audio streams are transferred in SFU manner
         # TODO: Create MCU to mix audio streams
         for ctx in webrtc_contexts:
@@ -404,4 +402,3 @@ if __name__ == "__main__":
     fsevents_logger.setLevel(logging.WARNING)
 
     main()
-
