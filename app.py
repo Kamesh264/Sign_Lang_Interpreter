@@ -9,6 +9,11 @@ import mediapipe as mp
 import copy
 from sklearn.preprocessing import StandardScaler
 import pandas as pd
+import logging
+
+# Initialize logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 # import os
 # os.environ["TF_FORCE_CPU"] = 'true'
 
@@ -75,52 +80,52 @@ class VideoProcessor(VideoProcessorBase):
     caption = ''
     prev_caption = ''
     def recv(self, frame):
-        
-        image = frame.to_ndarray(format="bgr24")
-        image = cv2.flip(image, 1)
-        debug_image = copy.deepcopy(image)
-        image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+        try:
+            image = frame.to_ndarray(format="bgr24")
+            image = cv2.flip(image, 1)
+            debug_image = copy.deepcopy(image)
+            image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
 
-        image.flags.writeable = False
-        results = hands.process(image)
+            image.flags.writeable = False
+            results = hands.process(image)
 
-        both_hand_landmarks = []
-        if results.multi_hand_landmarks:
-            for hand_landmarks in results.multi_hand_landmarks:
-                mp_drawing.draw_landmarks(debug_image, hand_landmarks, mp_hands.HAND_CONNECTIONS)
-                landmarks = []
-                for landmark in hand_landmarks.landmark:
-                    landmarks.append((landmark.x, landmark.y))
-                both_hand_landmarks.append(landmarks)
-            
-            if len(both_hand_landmarks) == 1:
-                both_hand_landmarks.append([(0, 0)] * len(both_hand_landmarks[0]))
-            values = list(np.array(both_hand_landmarks).flatten())
-            values = scaler.transform([values])
-            predicted = loaded_model.predict(values)
-            cv2.rectangle(debug_image, (0,0), (160, 60), (245, 90, 16), -1)
-        
-            cv2.putText(debug_image, 'Predicted Gesture'
-                        , (20,15), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 0), 1, cv2.LINE_AA)
-            cv2.putText(debug_image, str(predicted[0])
-                        , (20,45), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2, cv2.LINE_AA)
-            self.threshold_list.append(predicted[0])
-            if self.threshold_list.count(predicted[0]) >= self.threshold:
-                # Add caption text
-                if self.seq[-1] != predicted[0]:
-                    self.caption = generate_caption(predicted[0], self.seq)
-                if self.caption == '':
-                    self.caption= self.prev_caption
-                else:
-                    self.prev_caption = self.caption
-                self.threshold_list = []
-            
-        caption_size = cv2.getTextSize(self.caption, cv2.FONT_HERSHEY_SIMPLEX, 0.8, 2)[0]
-        caption_x = int((debug_image.shape[1] - caption_size[0]) / 2)
-        caption_y = debug_image.shape[0] - 10  # Adjust 10 for padding
-        cv2.putText(debug_image, self.caption, (caption_x, caption_y), cv2.FONT_HERSHEY_SIMPLEX, 0.8, (0, 255, 0), 2, cv2.LINE_AA)
+            both_hand_landmarks = []
+            if results.multi_hand_landmarks:
+                for hand_landmarks in results.multi_hand_landmarks:
+                    mp_drawing.draw_landmarks(debug_image, hand_landmarks, mp_hands.HAND_CONNECTIONS)
+                    landmarks = []
+                    for landmark in hand_landmarks.landmark:
+                        landmarks.append((landmark.x, landmark.y))
+                    both_hand_landmarks.append(landmarks)
 
-        return av.VideoFrame.from_ndarray(debug_image, format="bgr24")
+                if len(both_hand_landmarks) == 1:
+                    both_hand_landmarks.append([(0, 0)] * len(both_hand_landmarks[0]))
+                values = list(np.array(both_hand_landmarks).flatten())
+                values = scaler.transform([values])
+                predicted = loaded_model.predict(values)
+                cv2.rectangle(debug_image, (0, 0), (160, 60), (245, 90, 16), -1)
+
+                cv2.putText(debug_image, 'Predicted Gesture', (20, 15), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 0), 1, cv2.LINE_AA)
+                cv2.putText(debug_image, str(predicted[0]), (20, 45), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2, cv2.LINE_AA)
+                self.threshold_list.append(predicted[0])
+                if self.threshold_list.count(predicted[0]) >= self.threshold:
+                    if self.seq[-1] != predicted[0]:
+                        self.caption = generate_caption(predicted[0], self.seq)
+                    if self.caption == '':
+                        self.caption = self.prev_caption
+                    else:
+                        self.prev_caption = self.caption
+                    self.threshold_list = []
+
+            caption_size = cv2.getTextSize(self.caption, cv2.FONT_HERSHEY_SIMPLEX, 0.8, 2)[0]
+            caption_x = int((debug_image.shape[1] - caption_size[0]) / 2)
+            caption_y = debug_image.shape[0] - 10  # Adjust 10 for padding
+            cv2.putText(debug_image, self.caption, (caption_x, caption_y), cv2.FONT_HERSHEY_SIMPLEX, 0.8, (0, 255, 0), 2, cv2.LINE_AA)
+
+            return av.VideoFrame.from_ndarray(debug_image, format="bgr24")
+        except Exception as e:
+            logger.error(f"Error processing video frame: {e}")
+            return frame
 
 
 webrtc_ctx = webrtc_streamer(
