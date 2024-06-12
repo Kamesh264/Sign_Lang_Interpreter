@@ -144,7 +144,14 @@ try:
 except ImportError:
     from typing_extensions import Literal  # type: ignore
 
-from streamlit_webrtc import webrtc_streamer, RTCConfiguration, WebRtcMode, VideoProcessorBase
+from streamlit_webrtc import (
+    VideoProcessorBase,
+    WebRtcMode,
+    WebRtcStreamerContext,
+    create_mix_track,
+    create_process_track,
+    webrtc_streamer,
+)
 import streamlit as st
 import av  # type: ignore
 import numpy as np
