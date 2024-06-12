@@ -15,7 +15,7 @@ mp_hands = mp.solutions.hands
 mp_drawing = mp.solutions.drawing_utils
 confidence = 0.5
 # hands = mp_hands.Hands(static_image_mode=True, max_num_hands=2, min_detection_confidence=confidence)
-hands = mp_hands.Hands(static_image_mode=True, max_num_hands=2, min_detection_confidence=confidence, max_num_gpu_inference_streams=0)
+hands = mp_hands.Hands(static_image_mode=True, max_num_hands=2, min_detection_confidence=confidence, gpu=False)
 
 
 with open('trained_models/scaler.pkl', 'rb') as f:
