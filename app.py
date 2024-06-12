@@ -1,7 +1,7 @@
 import streamlit as st
-from streamlit_webrtc import webrtc_streamer,  RTCConfiguration, VideoProcessorBase, WebRtcMode
+from streamlit_webrtc import webrtc_streamer,  RTCConfiguration, VideoProcessorBase, WebRtcMode # type: ignore
 
-import av 
+import av  # type: ignore
 import numpy as np
 import cv2
 import pickle
@@ -9,7 +9,8 @@ import mediapipe as mp
 import copy
 from sklearn.preprocessing import StandardScaler
 import pandas as pd
-
+import os
+os.environ["TF_FORCE_CPU"] = 'true'
 
 mp_hands = mp.solutions.hands
 mp_drawing = mp.solutions.drawing_utils
