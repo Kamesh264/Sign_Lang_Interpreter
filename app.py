@@ -270,13 +270,6 @@ class VideoProcessor(VideoProcessorBase):
             logger.error(f"Error processing video frame: {e}")
             return frame
 
-webrtc_ctx = webrtc_streamer(
-    key="opencv-filter",
-    mode=WebRtcMode.SENDRECV,
-    rtc_configuration=RTC_CONFIGURATION,
-    video_processor_factory=VideoProcessor,
-    async_processing=True,
-)
 
 def mixer_callback(frames: List[av.VideoFrame]) -> av.VideoFrame:
     buf_w = 640
@@ -350,7 +343,7 @@ def main():
     if self_ctx.input_video_track:
         self_process_track = create_process_track(
             input_track=self_ctx.input_video_track,
-            processor_factory=OpenCVVideoProcessor,
+            processor_factory=VideoProcessorBase,
         )
         mix_track.add_input_track(self_process_track)
 
