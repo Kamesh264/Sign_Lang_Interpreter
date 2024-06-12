@@ -171,7 +171,9 @@ with open('trained_models/scaler.pkl', 'rb') as f:
 with open('trained_models/random_forest_model.pkl', 'rb') as f:
     loaded_model = pickle.load(f)
 
-
+RTC_CONFIGURATION = RTCConfiguration(
+    {"iceServers": [{"urls": ["stun:stun.l.google.com:19302"]}]}
+)
 
 st.set_page_config(page_title="ISLT", page_icon="🤖")
 
