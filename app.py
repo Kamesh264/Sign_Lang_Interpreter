@@ -135,6 +135,7 @@
 #         video_processor_factory=VideoProcessor,
 #         async_processing=True,
 #     )
+
 import logging
 import math
 from typing import List
@@ -157,6 +158,10 @@ import copy
 from sklearn.preprocessing import StandardScaler
 import pandas as pd
 from streamlit_server_state import server_state, server_state_lock
+
+import os
+os.environ["CUDA_VISIBLE_DEVICES"] = "-1"
+
 
 # Initialize logging
 logging.basicConfig(level=logging.INFO)
