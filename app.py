@@ -135,8 +135,15 @@
 #         video_processor_factory=VideoProcessor,
 #         async_processing=True,
 #     )
-
 import logging
+import math
+from typing import List
+
+try:
+    from typing import Literal
+except ImportError:
+    from typing_extensions import Literal  # type: ignore
+
 from streamlit_webrtc import webrtc_streamer, RTCConfiguration, WebRtcMode, VideoProcessorBase
 import streamlit as st
 import av  # type: ignore
